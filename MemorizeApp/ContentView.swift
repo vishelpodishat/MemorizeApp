@@ -8,13 +8,12 @@
 import SwiftUI
 
 struct ContentView: View {
-    let emojis: [String] = ["💅", "🫃", "💀", "🤓", "💅", "🫃", "💀", "🤓"]
-    @State var cardCount: Int = 4
+    @State var myEmojis: [String] = ["💅", "🫃", "💀", "🤓", "💅", "🫃", "💀", "🤓"]
 
     var body: some View {
         VStack {
-            cardCountAdjusters
-            Spacer()
+            Text("Memorize!")
+                .font(.largeTitle)
             ScrollView {
                 cards
             }
@@ -22,41 +21,16 @@ struct ContentView: View {
         .padding()
     }
 
-    var cardCountAdjusters: some View {
-        HStack {
-            cardAdder
-            Spacer()
-            cardRemover
-        }
-        .imageScale(.large)
-        .font(.largeTitle)
-    }
-
     var cards: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))]) {
-            ForEach(0..<cardCount, id: \.self) { index in
-                CardView(content: emojis[index])
+            let shuffledCards = myEmojis.shuffled()
+
+            ForEach(myEmojis.indices, id: \.self) { index in
+                CardView(content: shuffledCards[index])
                     .aspectRatio(2/3, contentMode: .fit)
             }
         }
-        .foregroundColor(.orange)
-    }
-
-    func cardCountAdjusters(by offset: Int, symbol: String) -> some View {
-        Button(action: {
-            cardCount += offset
-        }, label: {
-            Image(systemName: symbol)
-        })
-        .disabled(cardCount + offset < 1 || cardCount + offset > emojis.count)
-    }
-
-    var cardAdder: some View {
-        cardCountAdjusters(by: +1, symbol: "plus")
-    }
-
-    var cardRemover: some View {
-        cardCountAdjusters(by: -1, symbol: "minus")
+        .foregroundColor(.red)
     }
 }
 
