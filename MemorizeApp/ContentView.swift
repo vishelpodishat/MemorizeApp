@@ -8,15 +8,29 @@
 import SwiftUI
 
 struct ContentView: View {
-    let emojis: [String] = ["💅", "🫃", "💀", "🤓"]
+    @State var myEmojis: [String] = ["💅", "🫃", "💀", "🤓", "💅", "🫃", "💀", "🤓"]
+
     var body: some View {
-        HStack {
-            ForEach(emojis.indices, id: \.self) { index in
-                CardView(content: emojis[index])
+        VStack {
+            Text("Memorize!")
+                .font(.largeTitle)
+            ScrollView {
+                cards
             }
         }
-        .foregroundColor(.orange)
         .padding()
+    }
+
+    var cards: some View {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))]) {
+            let shuffledCards = myEmojis.shuffled()
+
+            ForEach(myEmojis.indices, id: \.self) { index in
+                CardView(content: shuffledCards[index])
+                    .aspectRatio(2/3, contentMode: .fit)
+            }
+        }
+        .foregroundColor(.red)
     }
 }
 
@@ -27,7 +41,7 @@ struct CardView: View {
     var body: some View {
         ZStack(alignment: .center) {
             let baseCornerRadius = RoundedRectangle(cornerRadius: 12)
-            if isFaceUp {
+            Group {
                 baseCornerRadius
                     .fill(.white)
                     .foregroundColor(.white)
@@ -35,10 +49,11 @@ struct CardView: View {
                     .strokeBorder(lineWidth: 2)
                 Text(content)
                     .font(.largeTitle)
-            } else {
-                baseCornerRadius
-                    .fill()
             }
+            .opacity(isFaceUp ? 1 : 0)
+            baseCornerRadius
+                .fill()
+                .opacity(isFaceUp ? 0 : 1)
         }
         .onTapGesture {
             isFaceUp.toggle()
