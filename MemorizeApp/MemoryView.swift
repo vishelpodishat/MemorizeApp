@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  MemoryView.swift
 //  MemorizeApp
 //
 //  Created by Алишер Сайдешев on 09.10.2023.
@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct ContentView: View {
-    @State var myEmojis: [String] = ["💅", "🫃", "💀", "🤓", "💅", "🫃", "💀", "🤓"]
+struct MemoryView: View {
+    @ObservedObject var viewModel: MemoryViewModel
 
     var body: some View {
         VStack {
@@ -17,26 +17,27 @@ struct ContentView: View {
             ScrollView {
                 cards
             }
+            Button("Shuffle") {
+                viewModel.shuffle()
+            }
         }
         .padding()
     }
 
     var cards: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))]) {
-            let shuffledCards = myEmojis.shuffled()
-
-            ForEach(myEmojis.indices, id: \.self) { index in
-                CardView(content: shuffledCards[index])
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 85), spacing: 0)], spacing: 0) {
+            ForEach(viewModel.cards.indices, id: \.self) { index in
+                CardView(card: viewModel.cards[index])
                     .aspectRatio(2/3, contentMode: .fit)
+                    .padding(4)
             }
         }
-        .foregroundColor(.red)
+        .foregroundColor(Color.red)
     }
 }
 
 struct CardView: View {
-    let content: String
-    @State var isFaceUp: Bool = true
+    let card: MemorizeGameModel<String>.Card
 
     var body: some View {
         ZStack(alignment: .center) {
@@ -47,22 +48,21 @@ struct CardView: View {
                     .foregroundColor(.white)
                 baseCornerRadius
                     .strokeBorder(lineWidth: 2)
-                Text(content)
-                    .font(.largeTitle)
+                Text(card.content)
+                    .font(.system(size: 100))
+                    .minimumScaleFactor(0.01)
+                    .aspectRatio(1, contentMode: .fit)
             }
-            .opacity(isFaceUp ? 1 : 0)
+            .opacity(card.isFaceUp ? 1 : 0)
             baseCornerRadius
                 .fill()
-                .opacity(isFaceUp ? 0 : 1)
-        }
-        .onTapGesture {
-            isFaceUp.toggle()
+                .opacity(card.isFaceUp ? 0 : 1)
         }
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
+struct MemoryView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        MemoryView(viewModel: MemoryViewModel())
     }
 }
